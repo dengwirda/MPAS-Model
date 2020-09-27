@@ -2,9 +2,9 @@
 
 
 OCEAN_SHARED_INCLUDES = -I$(PWD)/../framework -I$(PWD)/../external/esmf_time_f90 -I$(PWD)/../operators
-OCEAN_SHARED_INCLUDES += -I$(PWD)/BGC -I$(PWD)/shared -I$(PWD)/analysis_members -I$(PWD)/cvmix/src/shared -I$(PWD)/mode_forward -I$(PWD)/mode_analysis -I$(PWD)/mode_init
+OCEAN_SHARED_INCLUDES += -I$(PWD)/BGC -I$(PWD)/shared -I$(PWD)/analysis_members -I$(PWD)/cvmix/src/shared -I$(PWD)/ppr/src -I$(PWD)/mode_forward -I$(PWD)/mode_analysis -I$(PWD)/mode_init
 
-all: shared libcvmix analysis_members libBGC
+all: shared libcvmix analysis_members libBGC libppr
 	(cd mode_forward; $(MAKE) FCINCLUDES="$(FCINCLUDES) $(OCEAN_SHARED_INCLUDES)" all )
 	(cd mode_analysis; $(MAKE) FCINCLUDES="$(FCINCLUDES) $(OCEAN_SHARED_INCLUDES)" all )
 	(cd mode_init; $(MAKE) FCINCLUDES="$(FCINCLUDES) $(OCEAN_SHARED_INCLUDES)" all )
@@ -59,7 +59,14 @@ libBGC:
 		(echo "Missing core_ocean/BGC/.git, did you forget to 'git submodule update --init --recursive' ?"; exit 1) \
 	fi
 
-shared: libcvmix libBGC
+libppr:
+	if [ -e ppr/.git ]; then \
+		(cd ppr/src; $(CPP) $(CPPFLAGS) $(CPPINCLUDES) ppr_1d.f90 > ppr_1d.F; $(FC) $(FFLAGS) -c ppr_1d.F -o ppr_1d.o) \
+	else \
+		(pwd ; echo "Missing core_ocean/ppr/.git, did you forget to 'git submodule update --init --recursive' ?"; exit 1) \
+	fi
+
+shared: libcvmix libBGC libppr
 	(cd shared; $(MAKE) FCINCLUDES="$(FCINCLUDES) $(OCEAN_SHARED_INCLUDES)")
 
 analysis_members: libcvmix shared
