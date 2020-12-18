@@ -564,6 +564,9 @@ endif
 ifneq ($(wildcard $(NETCDF)/lib64), )
 	NETCDFLIBLOC = lib64
 endif
+ifneq ($(wildcard $(NETCDF)/lib/x86_64-linux-gnu), )
+	NETCDFLIBLOC = lib/x86_64-linux-gnu
+endif
 	CPPINCLUDES += -I$(NETCDF)/include
 	FCINCLUDES += -I$(NETCDF)/include
 	LIBS += -L$(NETCDF)/$(NETCDFLIBLOC)
